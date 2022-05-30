@@ -1,11 +1,33 @@
 import styled from "styled-components"
 import { buildStyles, CircularProgressbar } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
-import { useState,useEffect } from "react";
+import axios from "axios";
+import tokenContext from "../Context/TokenContext/TokenContext";
+import UserContext from "../Context/userContext/UserContext";
+import { useContext,useState,useEffect } from "react";
 export default function Footer({navigate}){
-    
+    const {token} = useContext(tokenContext);
+    const config ={
+        headers:{
+            "Authorization":`Bearer ${token}`
+        }
+    };
+    const{userData,setUserData}=useContext(UserContext)
+    const [habitosHoje, setHabitosHoje]=useState([]);
+    useEffect(()=>{
+        const promise = axios.get("https://mock-api.bootcamp.respondeai.com.br/api/v2/trackit/habits/today", config)
+        promise
+            .then((res)=> {
+                setHabitosHoje(res.data)
+            })
+    },[])
+    useEffect(()=>{
 
+        let arrfeitos = habitosHoje.filter((habito)=> habito.done===true)
+        let porcentagem =  (arrfeitos.length/habitosHoje.length)*100
+        setUserData({...userData,progress:porcentagem})
 
+},[habitosHoje])
     return(
         <>
             <FooterStyled>
@@ -15,7 +37,7 @@ export default function Footer({navigate}){
             <ButtonArticle>
                 <div style={{ width: 95, height: 95}} onClick={()=>navigate("/hoje")}>
                     <CircularProgressbar 
-                    value={90} 
+                    value={userData.progress} 
                     text={"Hoje"}
                     background 
                     backgroundPadding={6} 

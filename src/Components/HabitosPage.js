@@ -18,6 +18,7 @@ export default function HabitosPage(){
     const {token}= useContext(tokenContext);
     const {userData}= useContext(UserContext);
     const [habitos, setHabitos]= useState(null);
+    const [insideButton,setInsideButton]= useState(true)
     const {foiDeletado,setFoiDeletado}= useContext(foiDeletadoContext)
     const {botaoClicado, setBotaoClicado} = useContext(butaoClicadoContext);
     const {ultimoHabitoCriado, setUltimoHabitoCriado}= useContext(UltimoHabitoCriado);
@@ -76,7 +77,8 @@ export default function HabitosPage(){
     }
 
 
-    function enviarHabito(name,days){
+    function enviarHabito(name,days,insideButton,setInsideButton){
+        setInsideButton(false)
         const body={
             name,
             days
@@ -86,17 +88,18 @@ export default function HabitosPage(){
             .then((res)=>{
                 setUltimoHabitoCriado([...ultimoHabitoCriado,res.data])
                 setTimeout(temHabitoNovo,4000)
-                
+                setInsideButton(true)
                 setBotaoClicado(false)
             })
             .catch((err)=> {
+                setInsideButton(true)
                 console.log(err)
                 alert("nao foi possivel enviar o habito")
             })
         
     }
 
-    function CriarHabito(){
+    function CriarHabito({insideButton,setInsideButton}){
         const [nomeHabito,setNomeHabito] = useState("")
         if(botaoClicado){
             return(
@@ -111,9 +114,9 @@ export default function HabitosPage(){
                     <ButtonSection>
                         <button className="btnCancelar" onClick={()=> setBotaoClicado(false)}>cancelar</button>
                         <button className="btnSalvar" type="button" onClick={()=> {
-                            enviarHabito(nomeHabito,listaDias)
+                            enviarHabito(nomeHabito,listaDias,insideButton,setInsideButton)
                             
-                            }}>salvar</button>
+                            }}>{insideButton?"salvar":"salvando"}</button>
                     </ButtonSection>
                 </FormsStyled>
             )
@@ -121,7 +124,7 @@ export default function HabitosPage(){
             return( <></>)
         }
     }
-    CriarHabito()
+    
 
     function temHabitoNovo(){
         
@@ -143,7 +146,7 @@ export default function HabitosPage(){
             <Headers name={userData.name} image={userData.image} /> 
             <Content>
                 <MeusHabitos botaoClicado={botaoClicado} setBotaoClicado={setBotaoClicado}></MeusHabitos>
-                <CriarHabito></CriarHabito>
+                <CriarHabito insideButton={insideButton} setInsideButton={setInsideButton}/>
                 <Habitos_Conteiner>
                     {temHabitoNovo()}
                     {mostrarHabito(habitos,setHabitos,token,setFoiDeletado)}
@@ -188,6 +191,7 @@ const Habitos_Conteiner =styled.section`
     align-items: center;
     padding-bottom:30px;
     margin-bottom:70px;
+    padding-top: 10px;
     overflow-y: scroll;
 `
 

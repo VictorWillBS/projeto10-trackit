@@ -11,36 +11,43 @@ export default function LoginPage(){
     const [email,setEmail] = useState("");
     const [password,setPassword] = useState("");
     const {token,setToken} = useContext(tokenContext);
-    const {setUserData} = useContext(UserContext);
+    const {userData,setUserData} = useContext(UserContext);
+    const [insideButton,setInsideButton]= useState(true)
     const navigate = useNavigate();
     
-    function enviarLogin(e){
+    function enviarLogin(e,insideButton,setInsideButton){
         e.preventDefault();
+       if(insideButton) {
+        console.log("click")
         const body ={
             email,
             password,
         };
         const promise = axios.post("https://mock-api.bootcamp.respondeai.com.br/api/v2/trackit/auth/login",body);
         
-
+        setInsideButton(false)
         //VAI FICAR REQUISITANDO INFINITAMENTE!!!!!!!!!!!!!!!!!!!!!
         // CONSERTAR ISSO!!!!!!!!!!!!11
 
         promise
         .then((res)=> {
             setToken(res.data.token);
-            setUserData(res.data);
+            setUserData({...userData,img:(res.data.image)});
+            setInsideButton(true)
             navigate("/habitos")})
-        .catch((err)=> alert("Usuário nâo encontrado. Por favor verifique email e senha!"));
+        .catch((err)=> {
+            alert("Usuário nâo encontrado. Por favor verifique email e senha!")
+            setInsideButton(true)
+        });}
 
     }
-
+    
     return(
     <Conteiner_tela>
         <LogoStyled>
             <img src={logo} />
         </LogoStyled>
-        <FormStyled onSubmit={enviarLogin}>
+        <FormStyled onSubmit={(e)=>enviarLogin(e,insideButton,setInsideButton)}>
             <input 
             type="email"
             placeholder="email" 
@@ -53,7 +60,7 @@ export default function LoginPage(){
             onChange={(e)=> setPassword(e.target.value)} 
             value={password}>
             </input>
-            <button type="submit">Entrar</button>
+            <button type="submit">{insideButton?"entrar": "carregando"}</button>
         </FormStyled>
         <LinkStyled to={"/cadastro"}>
             <p>Não tem uma conta? Cadastre-se!</p>

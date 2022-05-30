@@ -3,10 +3,13 @@ import Headers from "./Header";
 import { useNavigate } from "react-router-dom"
 import { Content } from "./HabitosPage"
 import { useState,useEffect,useContext } from "react";
+import atualizarDataContext from "../Context/AtualizarDataContext/atualizarDataContext";
 import tokenContext from "../Context/TokenContext/TokenContext";
+import UserContext from "../Context/userContext/UserContext";
+import Check from "./Check";
 import styled from "styled-components";
 import axios from "axios";
-import {ReactComponent as Check} from "./../assets/images/checkmark-outline.svg"
+
 
 
 function DiaSemana(){
@@ -25,36 +28,16 @@ function DiaSemana(){
     )
 }
 
-function enviarCheck(config,id, isDone){
-    if(isDone){
-        const promise = axios.post(`https://mock-api.bootcamp.respondeai.com.br/api/v2/trackit/habits/${id}/check`,null,config)
-        promise.then()
-    }else{
-        const promise = axios.post(`https://mock-api.bootcamp.respondeai.com.br/api/v2/trackit/habits/${id}/uncheck`,null,config)
-        promise.then()
-    }
-}
 
-function CheckButton({id,config,done,qntFeitos,setQntFeitos}){
-    
-    const [color, setColor]= useState(undefined)
+
+function CheckButton({id,config,done}){
+    const {atualizarData, setAtualizarData} = useContext(atualizarDataContext)
+   
+    const [color, setColor]= useState(done)
     let isDone;
-    
-    useEffect(() => {
-        setColor(done)
-        console.log("entrei")
-        if(done){
-           
-            setQntFeitos(qntFeitos+1)
-            
-          }
-    },[])
-    
-    
-    setTimeout(()=> {console.log(qntFeitos)},3000)
+
     function  darCheck(){
-       
-        console.log("mudei de cor")
+    
         if(color){
             setColor(false)
             isDone=false
@@ -65,21 +48,37 @@ function CheckButton({id,config,done,qntFeitos,setQntFeitos}){
         
         enviarCheck(config,id,isDone)
     }
-    
+
+    function enviarCheck(config,id, isDone){
+        if(isDone){
+            const promise = axios.post(`https://mock-api.bootcamp.respondeai.com.br/api/v2/trackit/habits/${id}/check`,null,config)
+            promise.then((res)=>{
+                setAtualizarData(!atualizarData)
+            })
+        }else{
+            const promise = axios.post(`https://mock-api.bootcamp.respondeai.com.br/api/v2/trackit/habits/${id}/uncheck`,null,config)
+            promise.then((res)=>{
+                setAtualizarData(!atualizarData)
+            })
+        }
+    }
     return(
         <ButtonSection>
             <ButtonStyled 
                 type="button" 
                 bgcolor={color? "#8FC549":""} 
                 onClick={()=> {darCheck()}}> 
-                <Check fill="white"/>
+               {Check}
             </ButtonStyled>
         </ButtonSection>
     )
 }
 
-function HabitoCard({habito,config,qntFeitos,setQntFeitos,}){
+function HabitoCard({habito,config,}){
     let feitos=0;
+   
+ 
+      
     return(
         <Card_Habito>
             <div>
@@ -93,8 +92,6 @@ function HabitoCard({habito,config,qntFeitos,setQntFeitos,}){
             config={config} 
             id={habito.id} 
             done={habito.done}
-            setQntFeitos={setQntFeitos}
-            qntFeitos={qntFeitos}
              />
         </Card_Habito>
     )
@@ -103,8 +100,9 @@ function HabitoCard({habito,config,qntFeitos,setQntFeitos,}){
 export default function HojePage(){
     const {token} = useContext(tokenContext);
     const navigate =useNavigate();
-    const [habitosHoje, setHabitosHoje]=useState([])
-    let [qntFeitos,setQntFeitos]=useState(0);
+    const [habitosHoje, setHabitosHoje]=useState([]);
+    const {atualizarData, setAtualizarData} = useContext(atualizarDataContext)
+    const{userData,setUserData}=useContext(UserContext)
     const config ={
         headers:{
             "Authorization":`Bearer ${token}`
@@ -117,8 +115,25 @@ export default function HojePage(){
             .then((res)=> {
                 setHabitosHoje(res.data)
             })
-    },[])
-    
+    },[atualizarData])
+
+    useEffect(()=>{
+
+            let arrfeitos = habitosHoje.filter((habito)=> habito.done===true)
+            let porcentagem =  (arrfeitos.length/habitosHoje.length)*100
+            setUserData({...userData,progress:porcentagem})
+            habitosFeitos()
+    },[habitosHoje])
+   
+    function habitosFeitos(){
+        if(!userData.progress){
+            return (<H4_Styled>Nenhum hábito concluído ainda</H4_Styled>)
+        }else{
+            return(<H4_Styled color="#8FC549" >{parseInt(userData.progress)}% dos hábitos concluídos</H4_Styled>)
+        }
+    }
+
+
     function quandoResponder(){
         if(habitosHoje.length){
             return(
@@ -127,17 +142,18 @@ export default function HojePage(){
             <Content>
                 <Cabecalho>
                     {DiaSemana()}
+                    {habitosFeitos()}
                 </Cabecalho>
                 <HabitosLista>
                     {habitosHoje.map((habito,index)=>
                     <HabitoCard key={index} 
                     config={config} habito={habito} 
-                    qntFeitos={qntFeitos}
-                    setQntFeitos={setQntFeitos}
+                  
                     /> )}
                 </HabitosLista>
             </Content>
-            <Footer navigate={navigate} ></Footer>
+            <Footer navigate={navigate} 
+            value={userData.progress} ></Footer>
         </>
             )
         }else{
@@ -156,11 +172,18 @@ export default function HojePage(){
 const Cabecalho =styled.section`
     width:100%;
     margin-top: 20px;
-    
+    h3{
+        font-size: 22.98px;
+        color:#126BA5;
+    }
+
 `
-const H5_Styled = styled.h5`
-    font-size:15px;
-    color:#666666;
+const H4_Styled = styled.h4`
+  
+        margin-top:6px;
+        font-size:17.98px;
+        color:${props=> props.color ||" #BABABA"};
+    
 `
 
 const Card_Habito = styled.article`

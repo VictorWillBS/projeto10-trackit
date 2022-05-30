@@ -4,10 +4,11 @@ import { useContext } from "react";
 import logoName from "./../assets/images/logoName.png"
 export default function Headers(){
     const {userData} = useContext(UserContext)
+    
     return(
     <Header>
         <LogoName src={logoName}/>
-        <UserPhoto src={userData.image} alt="Foto do usuário"/>
+        <UserPhoto src={userData.img} alt="Foto do usuário"/>
     </Header>)
 }
 
