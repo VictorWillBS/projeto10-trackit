@@ -1,6 +1,6 @@
 import { useState, useEffect,useContext} from "react";
-import tokenContext from "../TokenContext/TokenContext";
-import UserContext from "../userContext/UserContext";
+import tokenContext from "../Context/TokenContext/TokenContext";
+import UserContext from "../Context/userContext/UserContext";
 import logo from "./../assets/images/logo.png";
 import styled from "styled-components";
 import {Link, useNavigate} from "react-router-dom";

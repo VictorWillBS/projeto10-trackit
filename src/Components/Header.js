@@ -1,10 +1,13 @@
 import styled from "styled-components"
+import UserContext from "../Context/userContext/UserContext";
+import { useContext } from "react";
 import logoName from "./../assets/images/logoName.png"
-export default function Headers({image, name}){
+export default function Headers(){
+    const {userData} = useContext(UserContext)
     return(
     <Header>
         <LogoName src={logoName}/>
-        <UserPhoto src={image} alt="Foto do usuário"/>
+        <UserPhoto src={userData.image} alt="Foto do usuário"/>
     </Header>)
 }
 
@@ -14,14 +17,17 @@ const Header = styled.header`
     left:0;
     width:100%;
     height:70px;
+    padding:0 18px;
     background-color:#126BA5;
     display:flex;
     justify-content: space-between;
     align-items:center;
+    z-index:1;
 `
 
 const LogoName = styled.img`
-    height: 45px;
+    width:97px;
+    
 `
 
 const UserPhoto = styled.img`

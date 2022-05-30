@@ -10,8 +10,6 @@ export default function MeusHabitos({botaoClicado, setBotaoClicado}){
        console.log("cliquei")
         if(!botaoClicado){
             setBotaoClicado(true)
-        }else{
-            setBotaoClicado(false)
         }
         
     }
@@ -27,10 +25,10 @@ export default function MeusHabitos({botaoClicado, setBotaoClicado}){
 
 const Container_top = styled.section`
     width:100%;
-    background-color:lightpink;
     display:flex;
     justify-content: space-between;
     align-items: center;
+    margin-top: 10px;
 
     h5{
         color:#126BA5;

@@ -1,13 +1,11 @@
 import styled from "styled-components"
 import trash from "./../assets/images/trash-outline.svg"
 import deletarHabito from "../Functions/DeletarHabito";
-export default function mostrarHabito(habitos,setHabitos,token,setFoiDeletado){
+export default function HabitosRecemCriados({habito}){
+    console.log("entrei HRC")
     const weekDay= [
         {dia:"D",numero: 0 },{dia:"S",numero: 1},{dia:"T",numero: 2},{dia:"Q",numero: 3},{dia:"Q",numero: 4},{dia:"S",numero: 5},{dia:"S",numero: 6}
     ];
-    
-   
-    function Habitos({habito}){
         const {id,name,days} = habito
         function WeekButton({dia, numero}){
             let color;
@@ -30,7 +28,7 @@ export default function mostrarHabito(habitos,setHabitos,token,setFoiDeletado){
                 <DayButtonSection>
                     {weekDay.map((weekDay)=> <WeekButton key={weekDay.numero} dia={weekDay.dia} numero={weekDay.numero}/>)}
                 </DayButtonSection>
-                <FiguraDelete onClick={()=>deletarHabito(id,token,setFoiDeletado)}>
+                <FiguraDelete onClick={()=>deletarHabito(id)}>
                     <img src={trash}/>
                 </FiguraDelete>
             </Card_Habito>
@@ -39,19 +37,11 @@ export default function mostrarHabito(habitos,setHabitos,token,setFoiDeletado){
      
     }
 
-    if (!(habitos.length ===0)){
-        return(habitos.map((habito,index)=><Habitos key={index} habito={habito}/>))
-    }
-    else{
-        return(
-        <>
-            <p> Você não tem nenhum hábito cadastrado ainda. Adicione um hábito para começar a trackear!</p>
-            
-        </>
-        )
-    }
-}
 
+
+
+
+//CSS
 const Card_Habito = styled.article`
     width:100%;
     height:91px;
